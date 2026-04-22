@@ -16,3 +16,15 @@ trim_trailing_whitespace = false
 
 [*.{kt,java}]
 indent_size = 4
+
+# ktlint rules
+[*.{kt,kts}]
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_packages_to_use_import_on_demand = java.util.*,kotlin.math.*
+ktlint_standard_no-wildcard-imports = enabled
+ktlint_standard_import-ordering = enabled
+ktlint_standard_string-template = enabled
+ktlint_standard_max-line-length = disabled
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled

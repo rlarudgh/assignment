@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "2.1.21"
     kotlin("plugin.spring") version "2.1.21"
     kotlin("plugin.jpa") version "2.1.21"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
 group = "com.example"
@@ -50,5 +51,14 @@ kotlin {
     compilerOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+ktlint {
+    android = false
+    outputColorName = "RED"
+    additionalEditorconfigFile = file("../.editorconfig")
+    filter {
+        exclude { it.file.path.contains("generated/") }
     }
 }
