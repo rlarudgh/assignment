@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+
+# Gradle
+.gradle/
+gradle/wrapper/gradle-wrapper.jar
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+.nyc_output
+
+# Bun
+bun.lockb
+
+# Spring Boot
+*.class
+*.jar
+*.war
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.tsbuildinfo
+
+# Docker volumes
+mysql-data/
