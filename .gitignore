@@ -10,7 +10,6 @@ out/
 
 # Gradle
 .gradle/
-gradle/wrapper/gradle-wrapper.jar
 
 # Environment
 .env
