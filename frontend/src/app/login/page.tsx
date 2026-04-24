@@ -1,24 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/features/auth/model/auth-context";
+import { formatZodErrors, loginSchema } from "@/features/enrollment/lib/validation.lib";
 import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { useAuth } from "@/features/auth/model/auth-context";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { z } from "zod";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
+  const validateForm = () => {
+    try {
+      loginSchema.parse({ email, password });
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setErrors(formatZodErrors(err));
+      }
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
+    if (!validateForm()) return;
+
+    setIsLoading(true);
     try {
       await login(email, password);
       router.push("/enrollment");
@@ -41,32 +59,42 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700 font-medium">이메일</Label>
+              <Label htmlFor="email" className="text-slate-700 font-medium">
+                이메일
+              </Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="test@test.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="border-slate-300 focus:border-blue-500"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                }}
+                className={`border-slate-300 focus:border-blue-500 ${errors.email ? "border-red-500" : ""}`}
               />
+              {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 font-medium">비밀번호</Label>
+              <Label htmlFor="password" className="text-slate-700 font-medium">
+                비밀번호
+              </Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="아무 값이나 입력"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-slate-300 focus:border-blue-500"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                }}
+                className={`border-slate-300 focus:border-blue-500 ${errors.password ? "border-red-500" : ""}`}
               />
+              {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3" 
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
               disabled={isLoading}
             >
               {isLoading ? "로그인 중..." : "로그인"}
@@ -76,9 +104,15 @@ export default function LoginPage() {
           <div className="mt-6 p-4 bg-slate-100 rounded-lg border border-slate-200">
             <p className="font-semibold text-slate-800 mb-2">테스트 계정:</p>
             <ul className="space-y-1 text-sm text-slate-700">
-              <li><span className="font-medium">크리에이터:</span> creator@test.com</li>
-              <li><span className="font-medium">수강생:</span> student@test.com</li>
-              <li><span className="font-medium">비밀번호:</span> 아무 값</li>
+              <li>
+                <span className="font-medium">크리에이터:</span> creator@test.com
+              </li>
+              <li>
+                <span className="font-medium">수강생:</span> student@test.com
+              </li>
+              <li>
+                <span className="font-medium">비밀번호:</span> 아무 값
+              </li>
             </ul>
           </div>
         </CardContent>
