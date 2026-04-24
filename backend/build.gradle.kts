@@ -1,65 +1,71 @@
 plugins {
-    id("org.springframework.boot") version "3.4.5"
-    id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.0.21"
-    kotlin("plugin.spring") version "2.0.21"
-    kotlin("plugin.jpa") version "2.0.21"
-    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
+  id("org.springframework.boot") version "3.4.5"
+  id("io.spring.dependency-management") version "1.1.7"
+  kotlin("jvm") version "2.0.21"
+  kotlin("plugin.spring") version "2.0.21"
+  kotlin("plugin.jpa") version "2.0.21"
+  id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-security")
+  // Spring Boot
+  implementation("org.springframework.boot:spring-boot-starter-web")
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+  implementation("org.springframework.boot:spring-boot-starter-validation")
+  implementation("org.springframework.boot:spring-boot-starter-security")
 
-    // Kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+  // Kotlin
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    // Database
-    runtimeOnly("com.mysql:mysql-connector-j")
+  // Database
+  runtimeOnly("com.mysql:mysql-connector-j")
 
-    // Swagger / OpenAPI
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
+  // JWT
+  implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+  runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+  runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
-    // DevTools
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+  // Swagger / OpenAPI
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 
-    // Test
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
+  // DevTools
+  developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+  // Test
+  testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.security:spring-security-test")
+  testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform()
+  useJUnitPlatform()
 }
 
 kotlin {
-    compilerOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-    }
+  compilerOptions {
+    freeCompilerArgs = listOf("-Xjsr305=strict")
+    jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+  }
 }
 
 ktlint {
-    android = false
-    outputColorName = "RED"
-    filter {
-        exclude { it.file.path.contains("generated/") }
-    }
+  android = false
+  outputColorName = "RED"
+  filter {
+    exclude { it.file.path.contains("generated/") }
+  }
 }
