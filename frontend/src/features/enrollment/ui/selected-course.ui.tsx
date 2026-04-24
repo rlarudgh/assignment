@@ -1,6 +1,6 @@
+import type { Course } from "@/entities/enrollment";
 import { Badge } from "@/shared/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import type { Course } from "@/entities/enrollment";
 
 interface SelectedCourseProps {
   course: Course | null;

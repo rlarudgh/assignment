@@ -1,10 +1,9 @@
 import type { ApplicantInfo } from "@/entities/enrollment";
+import { Badge } from "@/shared/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
-import { cn } from "@/shared/lib/utils";
 
 interface ApplicantFieldsProps {
   applicant: ApplicantInfo;
@@ -14,27 +13,51 @@ interface ApplicantFieldsProps {
   onBlur: (field: keyof ApplicantInfo) => void;
 }
 
-export function ApplicantFields({ applicant, errors, touched, onChange, onBlur }: ApplicantFieldsProps) {
-  const getError = (field: string) => touched[field] ? errors[field] : undefined;
+export function ApplicantFields({
+  applicant,
+  errors,
+  touched,
+  onChange,
+  onBlur,
+}: ApplicantFieldsProps) {
+  const getError = (field: string) => (touched[field] ? errors[field] : undefined);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">공통</Badge>
+          <Badge variant="outline" className="text-xs">
+            공통
+          </Badge>
           신청자 정보
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="이름" required error={getError("applicant.name")}>
-            <Input value={applicant.name} onChange={(e) => onChange("name", e.target.value)} onBlur={() => onBlur("name")} placeholder="홍길동" />
+            <Input
+              value={applicant.name}
+              onChange={(e) => onChange("name", e.target.value)}
+              onBlur={() => onBlur("name")}
+              placeholder="홍길동"
+            />
           </Field>
           <Field label="이메일" required error={getError("applicant.email")}>
-            <Input type="email" value={applicant.email} onChange={(e) => onChange("email", e.target.value)} onBlur={() => onBlur("email")} placeholder="example@email.com" />
+            <Input
+              type="email"
+              value={applicant.email}
+              onChange={(e) => onChange("email", e.target.value)}
+              onBlur={() => onBlur("email")}
+              placeholder="example@email.com"
+            />
           </Field>
           <Field label="전화번호" required error={getError("applicant.phone")}>
-            <Input value={applicant.phone} onChange={(e) => onChange("phone", e.target.value)} onBlur={() => onBlur("phone")} placeholder="010-1234-5678" />
+            <Input
+              value={applicant.phone}
+              onChange={(e) => onChange("phone", e.target.value)}
+              onBlur={() => onBlur("phone")}
+              placeholder="010-1234-5678"
+            />
           </Field>
           <div className="space-y-2 md:col-span-2">
             <Label>수강 동기 (선택)</Label>
@@ -46,7 +69,9 @@ export function ApplicantFields({ applicant, errors, touched, onChange, onBlur }
               className="min-h-[100px]"
             />
             <div className="flex justify-end">
-              <span className="text-xs text-muted-foreground">{(applicant.motivation || "").length}/300자</span>
+              <span className="text-xs text-muted-foreground">
+                {(applicant.motivation || "").length}/300자
+              </span>
             </div>
           </div>
         </div>
@@ -55,10 +80,17 @@ export function ApplicantFields({ applicant, errors, touched, onChange, onBlur }
   );
 }
 
-function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  error,
+  children,
+}: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <Label>{label} {required && <span className="text-destructive">*</span>}</Label>
+      <Label>
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
       {children}
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>

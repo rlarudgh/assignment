@@ -1,10 +1,10 @@
 "use client";
 
-import { EnrollmentResponse, EnrollmentFormData, Course } from "@/entities/enrollment";
+import type { Course, EnrollmentFormData, EnrollmentResponse } from "@/entities/enrollment";
+import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
-import { CheckCircle, Calendar, CreditCard, Users, Building2, User, Printer } from "lucide-react";
+import { Building2, Calendar, CheckCircle, CreditCard, Printer, User } from "lucide-react";
 
 interface SuccessScreenProps {
   response: EnrollmentResponse;
@@ -36,9 +36,11 @@ export function SuccessScreen({ response, formData, course, onReset }: SuccessSc
     return price.toLocaleString("ko-KR") + "원";
   };
 
-  const totalPrice = course ? (formData.type === "group" && formData.group
-    ? course.price * formData.group.headCount
-    : course.price) : 0;
+  const totalPrice = course
+    ? formData.type === "group" && formData.group
+      ? course.price * formData.group.headCount
+      : course.price
+    : 0;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -49,7 +51,8 @@ export function SuccessScreen({ response, formData, course, onReset }: SuccessSc
         </div>
         <h2 className="text-2xl font-bold">수강 신청이 완료되었습니다!</h2>
         <p className="text-muted-foreground">
-          신청 번호: <span className="font-mono font-medium text-foreground">{response.enrollmentId}</span>
+          신청 번호:{" "}
+          <span className="font-mono font-medium text-foreground">{response.enrollmentId}</span>
         </p>
       </div>
 
@@ -62,7 +65,9 @@ export function SuccessScreen({ response, formData, course, onReset }: SuccessSc
           {/* Course Info */}
           {course && (
             <div className="space-y-3">
-              <Badge variant="secondary">{categoryLabels[course.category] || course.category}</Badge>
+              <Badge variant="secondary">
+                {categoryLabels[course.category] || course.category}
+              </Badge>
               <h3 className="font-semibold text-lg">{course.title}</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">

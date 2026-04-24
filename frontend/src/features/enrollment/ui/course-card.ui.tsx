@@ -1,9 +1,16 @@
 import type { Course } from "@/entities/enrollment";
+import { cn } from "@/shared/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/shared/ui/card";
-import { Calendar, Users, CreditCard, Check } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/shared/ui/card";
+import { Calendar, Check, CreditCard, Users } from "lucide-react";
 
 interface CourseCardProps {
   course: Course;
@@ -47,12 +54,16 @@ export function CourseCard({ course, isSelected, onSelect }: CourseCardProps) {
           <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
           {isFull && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <Badge variant="destructive" className="text-lg px-3 py-1">정원 마감</Badge>
+              <Badge variant="destructive" className="text-lg px-3 py-1">
+                정원 마감
+              </Badge>
             </div>
           )}
           {isAlmostFull && (
             <div className="absolute top-2 right-2">
-              <Badge variant="secondary" className="bg-amber-500 text-white">마감 임박</Badge>
+              <Badge variant="secondary" className="bg-amber-500 text-white">
+                마감 임박
+              </Badge>
             </div>
           )}
         </div>
@@ -84,9 +95,21 @@ export function CourseCard({ course, isSelected, onSelect }: CourseCardProps) {
           variant={isSelected ? "default" : "outline"}
           className="w-full"
           disabled={isFull}
-          onClick={(e) => { e.stopPropagation(); onSelect(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
         >
-          {isSelected ? <><Check className="w-4 h-4 mr-2" />선택됨</> : isFull ? "정원 마감" : "선택하기"}
+          {isSelected ? (
+            <>
+              <Check className="w-4 h-4 mr-2" />
+              선택됨
+            </>
+          ) : isFull ? (
+            "정원 마감"
+          ) : (
+            "선택하기"
+          )}
         </Button>
       </CardFooter>
     </Card>
