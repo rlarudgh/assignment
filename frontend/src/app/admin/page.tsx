@@ -1,34 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/model/auth-context";
+import { ProtectedRoute } from "@/features/auth/ui/protected-route.ui";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export default function AdminPage() {
-  const { user, isLoading, isAuthenticated, hasRole } = useAuth();
+function AdminContent() {
+  const { user } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !hasRole("CREATOR")) {
-      toast.error("관리자 권한이 필요합니다");
-      router.push("/enrollment");
-    }
-  }, [isLoading, hasRole, router]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated || !hasRole("CREATOR")) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-slate-100 p-8">
@@ -80,5 +61,13 @@ export default function AdminPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <ProtectedRoute requireRole="CREATOR">
+      <AdminContent />
+    </ProtectedRoute>
   );
 }

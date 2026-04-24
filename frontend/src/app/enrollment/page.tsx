@@ -1,19 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import type { EnrollmentFormData, EnrollmentType, EnrollmentResponse } from "@/entities/enrollment";
-import { EnrollmentError, errorCodeMessages, useCourse, useSubmitEnrollment } from "@/entities/enrollment";
+import type { EnrollmentFormData, EnrollmentResponse, EnrollmentType } from "@/entities/enrollment";
+import {
+  EnrollmentError,
+  errorCodeMessages,
+  useCourse,
+  useSubmitEnrollment,
+} from "@/entities/enrollment";
+import { useAuth } from "@/features/auth/model/auth-context";
+import { ProtectedRoute } from "@/features/auth/ui/protected-route.ui";
 import { StepIndicator } from "@/features/enrollment/ui/step-indicator.ui";
 import { Step1CourseSelection } from "@/features/enrollment/ui/step1-course-selection.ui";
 import { Step2ApplicantInfo } from "@/features/enrollment/ui/step2-applicant-info.ui";
 import { Step3ReviewSubmit } from "@/features/enrollment/ui/step3-review-submit.ui";
 import { SuccessScreen } from "@/features/enrollment/ui/success-screen.ui";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { AlertCircle, Shield } from "lucide-react";
-import { useAuth } from "@/features/auth/model/auth-context";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const STEPS = ["강의 선택", "정보 입력", "확인 및 제출"];
 
@@ -29,7 +35,7 @@ const defaultFormData: EnrollmentFormData = {
   agreedToTerms: false,
 };
 
-export default function EnrollmentPage() {
+function EnrollmentContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<EnrollmentFormData>(defaultFormData);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -52,7 +58,10 @@ export default function EnrollmentPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleStep2Next = (data: { applicant: typeof formData.applicant; group?: typeof formData.group }) => {
+  const handleStep2Next = (data: {
+    applicant: typeof formData.applicant;
+    group?: typeof formData.group;
+  }) => {
     setFormData((prev) => ({
       ...prev,
       applicant: data.applicant,
@@ -83,8 +92,8 @@ export default function EnrollmentPage() {
     try {
       setSubmitError(null);
       setFieldErrors(undefined);
-      
-      const response = await submitEnrollment.mutateAsync(formData);
+
+      const response = await submitEnrollment.submit(formData);
       setSubmitSuccess(response);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -218,5 +227,13 @@ export default function EnrollmentPage() {
         <p>Step {currentStep} of 3</p>
       </div>
     </div>
+  );
+}
+
+export default function EnrollmentPage() {
+  return (
+    <ProtectedRoute>
+      <EnrollmentContent />
+    </ProtectedRoute>
   );
 }
