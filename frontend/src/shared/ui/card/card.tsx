@@ -1,6 +1,6 @@
-import type { ComponentProps } from "react"
+import type { ComponentProps } from "react";
 
-import { cn } from "@/shared/lib/utils"
+import { cn } from "@/shared/lib/utils";
 
 function Card({
   className,
@@ -17,7 +17,7 @@ function Card({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardHeader({ className, ...props }: ComponentProps<"div">) {
@@ -30,7 +30,7 @@ function CardHeader({ className, ...props }: ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardTitle({ className, ...props }: ComponentProps<"div">) {
@@ -43,7 +43,7 @@ function CardTitle({ className, ...props }: ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardDescription({ className, ...props }: ComponentProps<"div">) {
@@ -53,20 +53,17 @@ function CardDescription({ className, ...props }: ComponentProps<"div">) {
       className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardAction({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="card-action"
-      className={cn(
-        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        className
-      )}
+      className={cn("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardContent({ className, ...props }: ComponentProps<"div">) {
@@ -76,7 +73,7 @@ function CardContent({ className, ...props }: ComponentProps<"div">) {
       className={cn("px-4 group-data-[size=sm]/card:px-3", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardFooter({ className, ...props }: ComponentProps<"div">) {
@@ -89,15 +86,7 @@ function CardFooter({ className, ...props }: ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
-export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardAction,
-  CardDescription,
-  CardContent,
-}
+export { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent };

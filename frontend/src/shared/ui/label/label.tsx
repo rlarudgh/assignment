@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import type { ComponentProps } from "react"
+import type { ComponentProps } from "react";
 
-import { cn } from "@/shared/lib/utils"
+import { cn } from "@/shared/lib/utils";
 
 function Label({ className, ...props }: ComponentProps<"label">) {
   return (
@@ -14,7 +14,7 @@ function Label({ className, ...props }: ComponentProps<"label">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Label }
+export { Label };
