@@ -38,7 +38,7 @@ export function CourseCard({ course, isSelected, onSelect }: CourseCardProps) {
     });
   };
 
-  const formatPrice = (price: number) => price.toLocaleString("ko-KR") + "원";
+  const formatPrice = (price: number) => `${price.toLocaleString("ko-KR")}원`;
 
   return (
     <Card

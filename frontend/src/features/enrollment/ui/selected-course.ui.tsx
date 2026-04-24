@@ -9,7 +9,7 @@ interface SelectedCourseProps {
 export function SelectedCourse({ course }: SelectedCourseProps) {
   if (!course) return null;
 
-  const formatPrice = (price: number) => price.toLocaleString("ko-KR") + "원";
+  const formatPrice = (price: number) => `${price.toLocaleString("ko-KR")}원`;
   const capacityPercentage = (course.currentEnrollment / course.maxCapacity) * 100;
 
   return (

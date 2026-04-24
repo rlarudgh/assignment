@@ -110,9 +110,9 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 // Helper function to format Zod errors
 export function formatZodErrors(error: z.ZodError): Record<string, string> {
   const errors: Record<string, string> = {};
-  error.errors.forEach((err) => {
+  for (const err of error.errors) {
     const path = err.path.join(".");
     errors[path] = err.message;
-  });
+  }
   return errors;
 }

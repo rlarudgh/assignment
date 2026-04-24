@@ -140,12 +140,12 @@ export function useForm<T extends Record<string, unknown>>(
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: Partial<Record<keyof T, string>> = {};
-        error.errors.forEach((err) => {
+        for (const err of error.errors) {
           const path = err.path[0] as keyof T;
           if (!errors[path]) {
             errors[path] = err.message;
           }
-        });
+        }
         setFormState((prev) => ({ ...prev, errors, isValid: false }));
       }
       return false;
