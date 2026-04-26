@@ -4,8 +4,6 @@ import type { NextRequest } from "next/server";
 // Paths that don't require authentication
 const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/auth/logout"];
 
-// Paths that require CREATOR role
-const CREATOR_PATHS = ["/admin"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -18,7 +16,7 @@ export function middleware(request: NextRequest) {
   // Check for auth token
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
   const cookieToken = request.cookies.get("auth_token")?.value;
-  const hasToken = token || cookieToken;
+  const _hasToken = token || cookieToken;
 
   // API routes - let the API handle auth
   if (pathname.startsWith("/api/")) {
