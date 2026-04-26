@@ -8,6 +8,13 @@ data class LoginRequest(
     val password: String,
 )
 
+data class SignupRequest(
+    val email: String,
+    val name: String,
+    val password: String,
+    val role: UserRole = UserRole.CLASSMATE,
+)
+
 data class LoginResponse(
     val token: String,
     val user: UserResponse,

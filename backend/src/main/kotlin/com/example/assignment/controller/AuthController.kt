@@ -2,6 +2,8 @@ package com.example.assignment.controller
 
 import com.example.assignment.dto.auth.LoginRequest
 import com.example.assignment.dto.auth.LoginResponse
+import com.example.assignment.dto.auth.SignupRequest
+import com.example.assignment.dto.auth.UserResponse
 import com.example.assignment.service.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -52,6 +54,30 @@ class AuthController(
         @RequestBody @Valid request: LoginRequest
     ): ResponseEntity<LoginResponse> {
         return ResponseEntity.ok(authService.login(request))
+    }
+
+    @PostMapping("/signup")
+    @Operation(summary = "회원가입")
+    @SecurityRequirements
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "회원가입 성공",
+                content = [Content(schema = Schema(implementation = UserResponse::class))],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "이미 가입된 이메일",
+                content = [Content(examples = [ExampleObject(value = """{"status":409,"message":"이미 가입된 이메일입니다"}""")])],
+            ),
+        ]
+    )
+    fun signup(
+        @RequestBody @Valid request: SignupRequest
+    ): ResponseEntity<UserResponse> {
+        return ResponseEntity.status(201)
+            .body(authService.signup(request.email, request.name, request.password, request.role))
     }
 
     @GetMapping("/me")
