@@ -33,7 +33,7 @@ export function SuccessScreen({ response, formData, course, onReset }: SuccessSc
   };
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString("ko-KR") + "원";
+    return `${price.toLocaleString("ko-KR")}원`;
   };
 
   const totalPrice = course

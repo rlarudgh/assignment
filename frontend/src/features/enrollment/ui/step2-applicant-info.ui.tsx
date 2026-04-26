@@ -127,8 +127,6 @@ export function Step2ApplicantInfo({ type, initialData, onNext, onPrev }: Step2P
       }));
   };
 
-  const getFieldError = (field: string) => errors[field];
-
   return (
     <div className="space-y-6">
       <ApplicantFields

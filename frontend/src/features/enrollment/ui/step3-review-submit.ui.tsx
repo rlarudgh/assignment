@@ -10,7 +10,7 @@ import { AlertCircle, Check } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 import { step3Schema } from "../lib/validation.lib";
-import { ApplicantSummary, CourseSummary, PriceSummary } from "./summary-cards.ui";
+import { ApplicantSummary, CourseSummary, PriceSummary } from "./summary";
 
 interface Step3Props {
   formData: EnrollmentFormData;

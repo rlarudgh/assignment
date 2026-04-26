@@ -25,6 +25,7 @@ export function CourseListSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton list, never reorders
         <CourseCardSkeleton key={i} />
       ))}
     </div>

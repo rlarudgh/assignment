@@ -47,9 +47,9 @@ export function Step1CourseSelection({ initialData, onNext }: Step1Props) {
     } catch (err) {
       if (err instanceof z.ZodError) {
         const errors: Record<string, string> = {};
-        err.errors.forEach((e) => {
+        for (const e of err.errors) {
           errors[e.path[0] as string] = e.message;
-        });
+        }
         setValidationErrors(errors);
       }
     }

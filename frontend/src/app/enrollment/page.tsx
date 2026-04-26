@@ -1,14 +1,10 @@
 "use client";
 
-import type { EnrollmentFormData, EnrollmentResponse, EnrollmentType } from "@/entities/enrollment";
-import {
-  EnrollmentError,
-  errorCodeMessages,
-  useCourse,
-  useSubmitEnrollment,
-} from "@/entities/enrollment";
+import { useCourse, useSubmitEnrollment } from "@/entities/enrollment";
 import { useAuth } from "@/features/auth/model/auth-context";
 import { ProtectedRoute } from "@/features/auth/ui/protected-route.ui";
+import { useEnrollmentDraft } from "@/features/enrollment/lib/use-enrollment-draft";
+import { useEnrollmentForm } from "@/features/enrollment/lib/use-enrollment-form";
 import { StepIndicator } from "@/features/enrollment/ui/step-indicator.ui";
 import { Step1CourseSelection } from "@/features/enrollment/ui/step1-course-selection.ui";
 import { Step2ApplicantInfo } from "@/features/enrollment/ui/step2-applicant-info.ui";
@@ -18,14 +14,17 @@ import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { AlertCircle, Shield } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const STEPS = ["강의 선택", "정보 입력", "확인 및 제출"];
 
-const defaultFormData: EnrollmentFormData = {
+const handleAdminRedirect = () => {
+  window.location.href = "/admin";
+};
+
+const defaultFormData = {
   courseId: "",
-  type: "personal",
+  type: "personal" as const,
   applicant: {
     name: "",
     email: "",
@@ -36,106 +35,32 @@ const defaultFormData: EnrollmentFormData = {
 };
 
 function EnrollmentContent() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<EnrollmentFormData>(defaultFormData);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string> | undefined>(undefined);
-  const [submitSuccess, setSubmitSuccess] = useState<EnrollmentResponse | null>(null);
-
+  const { formData, setFormData, clearDraft } = useEnrollmentDraft(defaultFormData);
+  const form = useEnrollmentForm();
   const { data: course } = useCourse(formData.courseId);
-  const submitEnrollment = useSubmitEnrollment();
   const { hasRole } = useAuth();
-  const router = useRouter();
-
-  const handleStep1Next = (data: { courseId: string; type: EnrollmentType }) => {
-    setFormData((prev) => ({
-      ...prev,
-      courseId: data.courseId,
-      type: data.type,
-      group: data.type === "personal" ? undefined : prev.group,
-    }));
-    setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleStep2Next = (data: {
-    applicant: typeof formData.applicant;
-    group?: typeof formData.group;
-  }) => {
-    setFormData((prev) => ({
-      ...prev,
-      applicant: data.applicant,
-      group: data.group,
-    }));
-    setCurrentStep(3);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleStep2Prev = () => {
-    setCurrentStep(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleStep3Prev = () => {
-    setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleEditStep = (step: number) => {
-    setSubmitError(null);
-    setFieldErrors(undefined);
-    setCurrentStep(step);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleSubmit = async () => {
-    try {
-      setSubmitError(null);
-      setFieldErrors(undefined);
-
-      const response = await submitEnrollment.submit(formData);
-      setSubmitSuccess(response);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      if (err instanceof EnrollmentError) {
-        setSubmitError(errorCodeMessages[err.code] || err.message);
-        setFieldErrors(err.details);
-      } else {
-        setSubmitError("신청 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
-      }
-    }
-  };
-
-  const handleReset = () => {
-    setFormData(defaultFormData);
-    setCurrentStep(1);
-    setSubmitSuccess(null);
-    setSubmitError(null);
-    setFieldErrors(undefined);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const submitEnrollment = useSubmitEnrollment();
 
   // Prevent leaving with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (currentStep > 1 && !submitSuccess) {
+      if (form.currentStep > 1 && !form.submitSuccess) {
         e.preventDefault();
-        e.returnValue = "";
       }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentStep, submitSuccess]);
+  }, [form.currentStep, form.submitSuccess]);
 
-  if (submitSuccess) {
+  if (form.submitSuccess) {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
         <SuccessScreen
-          response={submitSuccess}
+          response={form.submitSuccess}
           formData={formData}
           course={course || null}
-          onReset={handleReset}
+          onReset={() => form.handleReset(setFormData, clearDraft)}
         />
       </div>
     );
@@ -153,7 +78,7 @@ function EnrollmentContent() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push("/admin")}
+              onClick={handleAdminRedirect}
               className="flex items-center gap-2 ml-4"
             >
               <Shield className="h-4 w-4" />
@@ -163,21 +88,20 @@ function EnrollmentContent() {
         </div>
       </div>
 
-      <StepIndicator currentStep={currentStep} totalSteps={3} stepLabels={STEPS} />
+      <StepIndicator currentStep={form.currentStep} totalSteps={3} stepLabels={STEPS} />
 
-      {submitError && (
+      {form.submitError && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{submitError}</AlertDescription>
+          <AlertDescription>{form.submitError}</AlertDescription>
         </Alert>
       )}
 
-      {/* Field-level errors for step 3 */}
-      {fieldErrors && currentStep === 3 && (
+      {form.fieldErrors && form.currentStep === 3 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="space-y-1">
-            {Object.entries(fieldErrors).map(([field, message]) => (
+            {Object.entries(form.fieldErrors).map(([field, message]) => (
               <div key={field}>{message}</div>
             ))}
           </AlertDescription>
@@ -186,37 +110,37 @@ function EnrollmentContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{STEPS[currentStep - 1]}</CardTitle>
+          <CardTitle>{STEPS[form.currentStep - 1]}</CardTitle>
           <CardDescription>
-            {currentStep === 1 && "수강할 강의와 신청 유형을 선택해 주세요."}
-            {currentStep === 2 && "신청자 정보를 입력해 주세요."}
-            {currentStep === 3 && "입력하신 정보를 확인하고 제출해 주세요."}
+            {form.currentStep === 1 && "수강할 강의와 신청 유형을 선택해 주세요."}
+            {form.currentStep === 2 && "신청자 정보를 입력해 주세요."}
+            {form.currentStep === 3 && "입력하신 정보를 확인하고 제출해 주세요."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {currentStep === 1 && (
+          {form.currentStep === 1 && (
             <Step1CourseSelection
               initialData={{ courseId: formData.courseId, type: formData.type }}
-              onNext={handleStep1Next}
+              onNext={(data) => form.handleStep1Next(formData, setFormData, data)}
             />
           )}
 
-          {currentStep === 2 && (
+          {form.currentStep === 2 && (
             <Step2ApplicantInfo
               type={formData.type}
               initialData={{ applicant: formData.applicant, group: formData.group }}
-              onNext={handleStep2Next}
-              onPrev={handleStep2Prev}
+              onNext={(data) => form.handleStep2Next(setFormData, data)}
+              onPrev={form.handleStep2Prev}
             />
           )}
 
-          {currentStep === 3 && (
+          {form.currentStep === 3 && (
             <Step3ReviewSubmit
               formData={formData}
               course={course || null}
-              onSubmit={handleSubmit}
-              onPrev={handleStep3Prev}
-              onEditStep={handleEditStep}
+              onSubmit={() => form.handleSubmit(formData, clearDraft)}
+              onPrev={form.handleStep3Prev}
+              onEditStep={form.handleEditStep}
               loading={submitEnrollment.isPending}
             />
           )}
@@ -224,7 +148,7 @@ function EnrollmentContent() {
       </Card>
 
       <div className="mt-8 text-center text-sm text-muted-foreground">
-        <p>Step {currentStep} of 3</p>
+        <p>Step {form.currentStep} of 3</p>
       </div>
     </div>
   );

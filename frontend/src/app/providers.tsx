@@ -24,13 +24,16 @@ export function Providers({ children }: ProvidersProps) {
   );
 
   useEffect(() => {
-    // Initialize MSW in development
-    if (process.env.NODE_ENV === "development") {
+    // Initialize MSW in development when MOCK_MODE is enabled
+    const isMockMode = process.env.NEXT_PUBLIC_MOCK_MODE === "true";
+
+    if (process.env.NODE_ENV === "development" && isMockMode) {
       import("@/shared/api/msw/browser")
         .then(({ worker }) => {
           worker.start({
             onUnhandledRequest: "bypass",
           });
+          // MSW started successfully
         })
         .catch((err) => {
           console.error("MSW initialization failed:", err);
