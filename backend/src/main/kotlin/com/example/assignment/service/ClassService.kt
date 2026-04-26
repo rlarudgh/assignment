@@ -4,6 +4,7 @@ import com.example.assignment.domain.Course
 import com.example.assignment.domain.CourseStatus
 import com.example.assignment.domain.EnrollmentStatus
 import com.example.assignment.domain.UserRole
+import com.example.assignment.dto.common.PageResponse
 import com.example.assignment.dto.course.CourseListResponse
 import com.example.assignment.dto.course.CourseResponse
 import com.example.assignment.dto.course.CreateCourseRequest
@@ -14,6 +15,8 @@ import com.example.assignment.exception.UnauthorizedException
 import com.example.assignment.repository.CourseRepository
 import com.example.assignment.repository.EnrollmentRepository
 import com.example.assignment.repository.UserRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -44,6 +47,40 @@ class ClassService(
         val categories = courseRepository.findAll().map { it.category }.distinct()
 
         return CourseListResponse(courses = responses, categories = categories)
+    }
+
+    fun getCourseList(
+        status: CourseStatus?,
+        category: String?,
+        page: Int,
+        size: Int,
+    ): PageResponse<CourseResponse> {
+        val pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
+        val coursesPage =
+            when {
+                status != null && category != null && category != "all" ->
+                    courseRepository.findAllByStatusAndCategory(status, category, pageable)
+                status != null ->
+                    courseRepository.findAllByStatus(status, pageable)
+                category != null && category != "all" -> {
+                    val all = courseRepository.findAll(pageable)
+                    val filtered = all.content.filter { it.category == category }
+                    org.springframework.data.domain.PageImpl(filtered, pageable, all.totalElements)
+                }
+                else ->
+                    courseRepository.findAll(pageable)
+            }
+
+        val content = coursesPage.content.map { toResponse(it) }
+        return PageResponse(
+            content = content,
+            currentPage = coursesPage.number,
+            totalPages = coursesPage.totalPages,
+            totalElements = coursesPage.totalElements,
+            pageSize = coursesPage.size,
+            hasNext = coursesPage.hasNext(),
+            hasPrevious = coursesPage.hasPrevious(),
+        )
     }
 
     fun getCourse(courseId: Long): CourseResponse {

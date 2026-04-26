@@ -47,7 +47,9 @@ class ClassController(
     fun getCourseList(
         @RequestParam(required = false) status: String?,
         @RequestParam(required = false) category: String?,
-    ): ResponseEntity<CourseListResponse> {
+        @RequestParam(required = false) page: Int?,
+        @RequestParam(required = false, defaultValue = "20") size: Int,
+    ): ResponseEntity<Any> {
         val courseStatus =
             status?.let {
                 try {
@@ -56,7 +58,11 @@ class ClassController(
                     null
                 }
             }
-        return ResponseEntity.ok(classService.getCourseList(courseStatus, category))
+        return if (page != null) {
+            ResponseEntity.ok(classService.getCourseList(courseStatus, category, page, size))
+        } else {
+            ResponseEntity.ok(classService.getCourseList(courseStatus, category))
+        }
     }
 
     @GetMapping("/{id}")
