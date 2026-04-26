@@ -7,5 +7,4 @@ export { SuccessScreen } from "./ui/success-screen.ui";
 export { CourseCardSkeleton, CourseListSkeleton, StepSkeleton } from "./ui/skeletons.ui";
 
 // Hooks & Utils
-export { useForm } from "./lib/use-form.lib";
 export * from "./lib/validation.lib";

@@ -91,7 +91,7 @@ export interface EnrollmentResponse {
 }
 
 export interface ErrorResponse {
-  code: "COURSE_FULL" | "DUPLICATE_ENROLLMENT" | "INVALID_INPUT" | "COURSE_NOT_FOUND";
+  code: "COURSE_FULL" | "DUPLICATE_ENROLLMENT" | "INVALID_INPUT" | "COURSE_NOT_FOUND" | "UNAUTHORIZED";
   message: string;
   details?: Record<string, string>;
 }
@@ -116,4 +116,5 @@ export const errorCodeMessages: Record<ErrorResponse["code"], string> = {
   DUPLICATE_ENROLLMENT: "이미 신청한 강의입니다.",
   INVALID_INPUT: "입력값을 확인해 주세요.",
   COURSE_NOT_FOUND: "강의를 찾을 수 없습니다.",
+  UNAUTHORIZED: "세션이 만료되었습니다. 다시 로그인해주세요.",
 };

@@ -36,11 +36,11 @@ export function GroupFields({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="단첼명" required error={errors["group.organizationName"]}>
+          <Field label="단체명" required error={errors["group.organizationName"]}>
             <Input
               value={group.organizationName}
               onChange={(e) => onChange("organizationName", e.target.value)}
-              placeholder="회사명 또는 단첼명"
+              placeholder="회사명 또는 단체명"
             />
           </Field>
           <Field label="담당자 연락처" required error={errors["group.contactPerson"]}>
@@ -123,7 +123,10 @@ function ParticipantList({ participants, errors, onChange, onRemove }: Participa
 
       <div className="space-y-3">
         {participants.map((p, i) => (
-          <div key={i} className="flex gap-3 items-start p-3 bg-muted/50 rounded-lg">
+          <div
+            key={p.email || `participant-${p.name}`}
+            className="flex gap-3 items-start p-3 bg-muted/50 rounded-lg"
+          >
             <div className="flex-1 grid gap-3 md:grid-cols-2">
               <div className="space-y-1">
                 <Label className="text-xs">이름</Label>
