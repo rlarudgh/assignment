@@ -63,6 +63,101 @@ bun run format
 bun run build
 ```
 
+### 5. Mock 서버 (MSW) 사용법
+
+백엔드 서버 없이도 프론트엔드 개발이 가능하도록 **MSW (Mock Service Worker)**가 구성되어 있습니다.
+
+#### Mock 서버로 실행하기
+
+```bash
+# 1. .env 파일에 Mock 모드 설정
+echo "NEXT_PUBLIC_MOCK_MODE=true" > .env
+
+# 2. 개발 서버 실행
+bun dev
+```
+
+#### Mock 데이터 구조
+
+**강의 목록 (GET /api/courses)**
+```typescript
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  category: "development" | "design" | "marketing" | "business";
+  price: number;
+  maxCapacity: number;
+  currentEnrollment: number;
+  startDate: string; // ISO 8601
+  endDate: string;   // ISO 8601
+  instructor: string;
+  thumbnail?: string;
+}
+```
+
+**수강 신청 (POST /api/enrollments)**
+- 개인 신청: `type: "personal"` + `applicant` 정보
+- 단체 신청: `type: "group"` + `applicant` + `group` 정보
+- 응답: `{ enrollmentId: string, status: "confirmed" | "pending", enrolledAt: string }`
+
+#### Mock 시나리오
+
+1. **성공 케이스**: 정상적인 수강 신청 → `status: "confirmed"` 반환
+2. **정원 초과**: `currentEnrollment >= maxCapacity` 인 강의 → `COURSE_FULL` 에러
+3. **중복 신청**: 이미 신청한 강의 → `DUPLICATE_ENROLLMENT` 에러
+4. **유효성 검증**: 필수 필드 누락 → `INVALID_INPUT` 에러
+
+#### Mock 데이터 수정
+
+Mock 데이터는 JSON 파일로 관리됩니다:
+
+```
+src/shared/api/msw/mock-data/
+├── courses.json     # 강의 목록 (8개 강의)
+└── users.json       # 사용자 목록 (2명: 크리에이터, 수강생)
+```
+
+**JSON 파일 예시** (`mock-data/courses.json`):
+```json
+{
+  "courses": [
+    {
+      "id": "course-1",
+      "title": "React 완벽 가이드",
+      "description": "React의 기초부터 고급 패턴까지 완벽하게 학습합니다.",
+      "category": "development",
+      "price": 150000,
+      "maxCapacity": 30,
+      "currentEnrollment": 25,
+      "startDate": "2024-05-01",
+      "endDate": "2024-05-31",
+      "instructor": "김민수",
+      "thumbnail": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=225&fit=crop"
+    }
+  ]
+}
+```
+
+**장점**:
+- 데이터와 로직 분리
+- 실제 API 응답 형식과 동일
+- 백엔드 협업 용이
+- 비개발자도 수정 가능
+
+#### 실제 백엔드와 연결하기
+
+```bash
+# 1. 백엔드 서버 실행 (http://localhost:8080)
+cd ../backend && ./gradlew bootRun
+
+# 2. .env 파일에서 Mock 모드 비활성화 또는 삭제
+rm .env
+
+# 3. 프론트엔드 서버 실행
+bun dev
+```
+
 ### 환경 변수
 
 프로젝트 루트의 `.env` 파일을 참조하거나, `frontend/.env`에 직접 설정할 수 있습니다.
@@ -70,15 +165,20 @@ bun run build
 | 변수 | 설명 | 기본값 |
 |------|------|--------|
 | `NEXT_PUBLIC_API_URL` | 백엔드 API 기본 주소 | `http://localhost:8080` |
+| `NEXT_PUBLIC_MOCK_MODE` | MSW Mock 서버 사용 여부 | `false` |
 
 ## 요구사항 해석 및 가정
 
 1. **풀스택 연동**: 백엔드 Spring Boot 서버와 REST API로 통신하며, Next.js의 rewrite 설정으로 `/api/*` 경로를 백엔드로 프록시합니다.
-2. **App Router 사용**: Next.js 13 이후 권장 방식인 App Router를 사용하며, 서버/클리이언트 컴포넌트를 적절히 활용합니다.
+2. **App Router 사용**: Next.js 16 App Router를 사용하며, 서버/클라이언트 컴포넌트를 적절히 활용합니다.
 3. **서버 상태 관리**: API 호출, 캐싱, 동기화, 백그라운드 업데이트 등을 TanStack Query로 처리합니다.
-4. **클리이언트 상태 관리**: 복잡한 전역 상태 없이도 직관적인 상태 관리가 가능한 Zustand를 사용합니다.
+4. **클라이언트 상태 관리**: 폼 상태는 useState + 커스텀 훅으로, 인증 상태는 Context API로 관리합니다.
 5. **스타일링**: 유틸리티 퍼스트 CSS 프레임워크인 TailwindCSS v4를 사용하여 일관된 디자인 시스템을 구축합니다.
 6. **아키텍처**: FSD를 통해 기능 단위로 코드를 분리하여, 도메인 변경 시 수정 범위를 최소화하고 확장성을 확보합니다.
+7. **선택 구현 항목 모두 완료**:
+   - ✅ 임시 저장: sessionStorage로 새로고침 후 데이터 복구
+   - ✅ 이탈 방지: beforeunload 이벤트로 브라우저 닫기 시 확인 대화상자
+   - ✅ 반응형 레이아웃: TailwindCSS 반응형 클래스로 모바일/태블릿/데스크톱 지원
 
 ## 설계 결정과 이유
 
@@ -122,16 +222,40 @@ src/
 
 ## 미구현 / 제약사항
 
-- **페이지 및 컴포넌트 미구현**: FSD 폴구조(`pages/`, `widgets/`, `entities/` 등)는 잡혀 있으나, 실제 UI 컴포넌트와 페이지는 작성되지 않았습니다.
-- **API 클라이언트 설정**: Axios 인스턴스 및 TanStack Query QueryClient 설정이 되어 있지 않으며, API 호출 유틸리티를 구현해야 합니다.
-- **TanStack Query Provider**: QueryClientProvider와 Hydration 설정이 필요합니다.
-- **인증 상태 관리**: Zustand 스토어는 생성되지 않았으며, JWT 토큰 관리(저장/갱신/만료 처리) 로직이 필요합니다.
-- **에러 및 로딩 UI**: 글로벌 에러 바울러리, 서스펜스 로딩 상태 등이 미구현입니다.
-- **반응형 디자인**: TailwindCSS는 설정되어 있으나, 반응형 브레이크포인트 기준 및 모바일 최적화가 되어 있지 않습니다.
+### 선택 구현 항목 미구현
+
+- **임시 저장 기능**: localStorage/sessionStorage를 활용한 새로고침 후 데이터 복구 (구현 완료 ✅)
+- **이탈 방지**: 브라우저 닫기 시 확인 대화상자 (구현 완료 ✅)
+- **반응형 레이아웃**: TailwindCSS 반응형 클래스 활용 (구현 완료 ✅)
+
+### 향후 개선 사항
+
+- **페이지네이션**: 강의 목록/신청 내역의 페이지네이션 (백엔드 구현 필요)
+- **대기열(waitlist)**: 정원 초과 시 대기열 기능 (백엔드 구현 필요)
+- **실시간 정원 업데이트**: WebSocket 등을 통한 실시간 정원 동기화
 
 ## AI 활용 범위
 
-- **프로젝트 초기 설정**: Next.js 16 + TypeScript + TailwindCSS v4 + FSD 폴구 생성 및 설정에 AI를 활용했습니다.
-- **설정 파일 작성**: `next.config.ts`, `postcss.config.mjs`, `biome.json`, `tsconfig.json` 등의 작성에 AI를 참고했습니다.
-- **아키텍처 설계**: FSD 레이어별 책임 분리 및 폴구 설계에 AI를 활용했습니다.
-- **핵심 UI/비즈니스 로직**: 현재는 미구현 상태이며, 향후 컴포넌트 및 상태 관리 구현 시 AI를 보조 도구로 활용할 예정입니다.
+### 프로젝트 설정 및 아키텍처
+- **프로젝트 초기 설정**: Next.js 16 + TypeScript + TailwindCSS v4 + FSD 폴더 구조 생성
+- **설정 파일 작성**: `next.config.ts`, `biome.json`, `tsconfig.json`, `vitest.config.ts` 등
+- **아키텍처 설계**: FSD 레이어별 책임 분리 및 폴더 구조 설계
+
+### 핵심 기능 구현
+- **다단계 폼 구조**: 3단계 수강 신청 폼의 기본 틀과 상태 관리
+- **유효성 검증**: Zod 스키마를 활용한 클라이언트 측 검증 로직
+- **React Query 통합**: TanStack Query를 활용한 서버 상태 관리 기본 설정
+
+### 코드 리팩토링 및 최적화
+- **코드 분리**: 대형 컴포넌트의 역할별 분리 (폼 상태, 임시 저장, UI)
+- **재사용 가능한 훅**: `useEnrollmentDraft`, `useEnrollmentForm` 등 커스텀 훅 추출
+- **타입 안전성**: TypeScript discriminated union을 활용한 타입 설계
+
+### 테스트 및 Mock
+- **MSW 설정**: Mock Service Worker를 활용한 API Mock 데이터 구조
+- **테스트 구조**: Vitest + Testing Library 기반 테스트 파일 기본 구조
+
+### 직접 구현한 부분
+- **비즈니스 로직 세부사항**: 단체 신청 시 참가자 명단 동적 추가/제거 UI
+- **사용자 경험 디테일**: 스텝별 유효성 검증, 에러 표시, 이탈 방지 등
+- **Mock 데이터 시나리오**: 정원 초과, 중복 신청 등 다양한 에러 케이스 처리
