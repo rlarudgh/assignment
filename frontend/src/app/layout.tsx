@@ -16,6 +16,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "수강 신청 시스템",
   description: "온라인 교육 플랫폼 수강 신청",
+  manifest: "/manifest.json",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
