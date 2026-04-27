@@ -268,7 +268,7 @@ describe("MSW Handlers", () => {
 
       expect(response.status).toBe(400);
       expect(data.code).toBe("INVALID_INPUT");
-      expect(data.details?.["group.organizationName"]).toBe("단첼명을 입력해주세요");
+      expect(data.details?.["group.organizationName"]).toBe("단체명을 입력해주세요");
       expect(data.details?.["group.headCount"]).toBe("신청 인원은 2~10명이어야 합니다");
     });
   });

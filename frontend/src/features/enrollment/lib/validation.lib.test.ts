@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
   applicantSchema,
-  step1Schema,
-  step2PersonalSchema,
-  step2GroupSchema,
-  step3Schema,
   enrollmentRequestSchema,
-  loginSchema,
   formatZodErrors,
+  loginSchema,
+  step1Schema,
+  step2GroupSchema,
+  step2PersonalSchema,
+  step3Schema,
 } from "./validation.lib";
 
 describe("validation.lib", () => {

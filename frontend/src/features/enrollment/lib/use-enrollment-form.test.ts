@@ -1,12 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useEnrollmentForm } from "./use-enrollment-form";
 import type { EnrollmentFormData } from "@/entities/enrollment";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useEnrollmentForm } from "./use-enrollment-form";
 
 // Mock dependencies
+const mockSubmit = vi.fn();
+
 vi.mock("@/entities/enrollment", () => ({
   useSubmitEnrollment: () => ({
-    submit: vi.fn(),
+    submit: mockSubmit,
   }),
   EnrollmentError: class extends Error {
     constructor(
@@ -22,6 +24,7 @@ vi.mock("@/entities/enrollment", () => ({
     DUPLICATE_ENROLLMENT: "이미 신청한 강의입니다",
     COURSE_FULL: "정원이 마감되었습니다",
     INVALID_COURSE: "존재하지 않는 강의입니다",
+    UNKNOWN: "알 수 없는 오류입니다",
   },
 }));
 
@@ -222,6 +225,60 @@ describe("useEnrollmentForm", () => {
       expect(result.current.fieldErrors).toBeUndefined();
       expect(mockSetFormData).toHaveBeenCalled();
       expect(mockClearDraft).toHaveBeenCalled();
+    });
+  });
+
+  describe("handleSubmit", () => {
+    it("should submit successfully and set success state", async () => {
+      const mockResponse = {
+        enrollmentId: "ENR-123",
+        status: "confirmed",
+        enrolledAt: new Date().toISOString(),
+      };
+      mockSubmit.mockResolvedValueOnce(mockResponse);
+
+      const { result } = renderHook(() => useEnrollmentForm());
+
+      await act(async () => {
+        await result.current.handleSubmit(mockFormData, mockClearDraft);
+      });
+
+      expect(result.current.submitSuccess).toEqual(mockResponse);
+      expect(result.current.submitError).toBeNull();
+      expect(mockClearDraft).toHaveBeenCalled();
+    });
+
+    it("should handle EnrollmentError with details", async () => {
+      const { EnrollmentError } = await import("@/entities/enrollment");
+      const error = new EnrollmentError("DUPLICATE_ENROLLMENT", "이미 신청한 강의입니다", {
+        email: "중복된 이메일입니다",
+      });
+      mockSubmit.mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => useEnrollmentForm());
+
+      await act(async () => {
+        await result.current.handleSubmit(mockFormData, mockClearDraft);
+      });
+
+      expect(result.current.submitError).toBe("이미 신청한 강의입니다");
+      expect(result.current.fieldErrors).toEqual({ email: "중복된 이메일입니다" });
+      expect(result.current.submitSuccess).toBeNull();
+    });
+
+    it("should handle unknown errors", async () => {
+      mockSubmit.mockRejectedValueOnce(new Error("Network error"));
+
+      const { result } = renderHook(() => useEnrollmentForm());
+
+      await act(async () => {
+        await result.current.handleSubmit(mockFormData, mockClearDraft);
+      });
+
+      expect(result.current.submitError).toBe(
+        "신청 처리 중 오류가 발생했습니다. 다시 시도해 주세요."
+      );
+      expect(result.current.submitSuccess).toBeNull();
     });
   });
 });

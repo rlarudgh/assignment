@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useEnrollmentDraft } from "./use-enrollment-draft";
 import type { EnrollmentFormData } from "@/entities/enrollment";
+import { act, renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useEnrollmentDraft } from "./use-enrollment-draft";
 
 const STORAGE_KEY = "enrollment_draft";
 
@@ -194,5 +194,51 @@ describe("useEnrollmentDraft", () => {
     const stored = sessionStorage.getItem(STORAGE_KEY);
     const parsed = JSON.parse(stored as string);
     expect(parsed.type).toBe("personal");
+  });
+
+  it("should handle sessionStorage setItem error gracefully", () => {
+    const originalSetItem = sessionStorage.setItem;
+    sessionStorage.setItem = vi.fn(() => {
+      throw new Error("Quota exceeded");
+    });
+
+    const { result } = renderHook(() => useEnrollmentDraft(defaultFormData));
+
+    // Should not throw when saving fails
+    act(() => {
+      result.current.setFormData({ ...defaultFormData, courseId: "course-err" });
+    });
+
+    expect(result.current.formData.courseId).toBe("course-err");
+
+    sessionStorage.setItem = originalSetItem;
+  });
+
+  it("should handle sessionStorage removeItem error gracefully", () => {
+    const originalRemoveItem = sessionStorage.removeItem;
+    sessionStorage.removeItem = vi.fn(() => {
+      throw new Error("Storage error");
+    });
+
+    const { result } = renderHook(() => useEnrollmentDraft(defaultFormData));
+
+    // Should not throw when clearing fails
+    act(() => {
+      result.current.clearDraft();
+    });
+
+    sessionStorage.removeItem = originalRemoveItem;
+  });
+
+  it("should handle sessionStorage getItem error gracefully", () => {
+    const originalGetItem = sessionStorage.getItem;
+    sessionStorage.getItem = vi.fn(() => {
+      throw new Error("Storage error");
+    });
+
+    const { result } = renderHook(() => useEnrollmentDraft(defaultFormData));
+    expect(result.current.formData).toEqual(defaultFormData);
+
+    sessionStorage.getItem = originalGetItem;
   });
 });
