@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta } from "@storybook/react";
 
 import { Button } from "@/shared/ui/button";
 import {
@@ -21,9 +21,8 @@ const meta = {
 } satisfies Meta<typeof Card>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
-export const Default= {
+export const Default = {
   render: () => (
     <Card className="w-80">
       <CardHeader>
@@ -40,7 +39,7 @@ export const Default= {
   ),
 };
 
-export const Small= {
+export const Small = {
   render: () => (
     <Card size="sm" className="w-72">
       <CardHeader>
@@ -54,7 +53,7 @@ export const Small= {
   ),
 };
 
-export const WithAction= {
+export const WithAction = {
   render: () => (
     <Card className="w-80">
       <CardHeader>
@@ -73,7 +72,7 @@ export const WithAction= {
   ),
 };
 
-export const ContentOnly= {
+export const ContentOnly = {
   render: () => (
     <Card className="w-80">
       <CardContent>

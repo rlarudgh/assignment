@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta } from "@storybook/react";
 import { AlertCircle } from "lucide-react";
 
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "./alert";
@@ -19,9 +19,8 @@ const meta = {
 } satisfies Meta<typeof Alert>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
-export const Default= {
+export const Default = {
   render: () => (
     <Alert className="w-96">
       <AlertTitle>Heads up!</AlertTitle>
@@ -30,7 +29,7 @@ export const Default= {
   ),
 };
 
-export const Destructive= {
+export const Destructive = {
   render: () => (
     <Alert variant="destructive" className="w-96">
       <AlertCircle className="size-4" />
@@ -40,7 +39,7 @@ export const Destructive= {
   ),
 };
 
-export const WithIcon= {
+export const WithIcon = {
   render: () => (
     <Alert className="w-96">
       <AlertCircle className="size-4" />
@@ -50,7 +49,7 @@ export const WithIcon= {
   ),
 };
 
-export const WithAction= {
+export const WithAction = {
   render: () => (
     <Alert className="w-96">
       <AlertTitle>Update available</AlertTitle>
