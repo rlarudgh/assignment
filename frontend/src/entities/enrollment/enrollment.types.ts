@@ -91,7 +91,12 @@ export interface EnrollmentResponse {
 }
 
 export interface ErrorResponse {
-  code: "COURSE_FULL" | "DUPLICATE_ENROLLMENT" | "INVALID_INPUT" | "COURSE_NOT_FOUND" | "UNAUTHORIZED";
+  code:
+    | "COURSE_FULL"
+    | "DUPLICATE_ENROLLMENT"
+    | "INVALID_INPUT"
+    | "COURSE_NOT_FOUND"
+    | "UNAUTHORIZED";
   message: string;
   details?: Record<string, string>;
 }

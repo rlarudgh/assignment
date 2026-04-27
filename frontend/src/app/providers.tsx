@@ -6,12 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
-const ReactQueryDevtoolsLazy = process.env.NODE_ENV === "development"
-  ? dynamic(
-    () => import("@tanstack/react-query-devtools").then((mod) => mod.ReactQueryDevtools),
-    { ssr: false },
-  )
-  : () => null;
+const ReactQueryDevtoolsLazy =
+  process.env.NODE_ENV === "development"
+    ? dynamic(
+        () => import("@tanstack/react-query-devtools").then((mod) => mod.ReactQueryDevtools),
+        { ssr: false }
+      )
+    : () => null;
 
 interface ProvidersProps {
   children: React.ReactNode;

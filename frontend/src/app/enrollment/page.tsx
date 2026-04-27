@@ -48,12 +48,12 @@ function EnrollmentContent() {
 
   const handleReset = useCallback(
     () => form.handleReset(setFormData, clearDraft),
-    [form, setFormData, clearDraft],
+    [form, setFormData, clearDraft]
   );
 
   const handleSubmit = useCallback(
     () => form.handleSubmit(formData, clearDraft),
-    [form, formData, clearDraft],
+    [form, formData, clearDraft]
   );
 
   // Prevent leaving with unsaved changes
@@ -126,9 +126,7 @@ function EnrollmentContent() {
       <Card>
         <CardHeader>
           <CardTitle>{STEPS[form.currentStep - 1]}</CardTitle>
-          <CardDescription>
-            {STEP_DESCRIPTIONS[form.currentStep - 1]}
-          </CardDescription>
+          <CardDescription>{STEP_DESCRIPTIONS[form.currentStep - 1]}</CardDescription>
         </CardHeader>
         <CardContent>
           {form.currentStep === 1 ? (

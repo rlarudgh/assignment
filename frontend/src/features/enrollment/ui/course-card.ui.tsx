@@ -26,7 +26,11 @@ const categoryLabels: Record<string, string> = {
   business: "비즈니스",
 };
 
-export const CourseCard = memo(function CourseCard({ course, isSelected, onSelect }: CourseCardProps) {
+export const CourseCard = memo(function CourseCard({
+  course,
+  isSelected,
+  onSelect,
+}: CourseCardProps) {
   const isFull = course.currentEnrollment >= course.maxCapacity;
   const capacityPercentage = (course.currentEnrollment / course.maxCapacity) * 100;
   const isAlmostFull = capacityPercentage >= 80 && !isFull;
@@ -44,7 +48,7 @@ export const CourseCard = memo(function CourseCard({ course, isSelected, onSelec
         day: "numeric",
       }),
     }),
-    [course.startDate, course.endDate],
+    [course.startDate, course.endDate]
   );
 
   const formatPrice = (price: number) => `${price.toLocaleString("ko-KR")}원`;
