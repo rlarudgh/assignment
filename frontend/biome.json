@@ -7,7 +7,18 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".next", "out", "build", "node_modules", "storybook-static", "playwright-report", "test-results", "*.min.js", "*.min.css"]
+    "ignore": [
+      ".next",
+      "out",
+      "build",
+      "node_modules",
+      "storybook-static",
+      "playwright-report",
+      "test-results",
+      "coverage",
+      "*.min.js",
+      "*.min.css"
+    ]
   },
   "formatter": {
     "enabled": true,
