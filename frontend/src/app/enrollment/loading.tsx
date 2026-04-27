@@ -15,9 +15,9 @@ export default function EnrollmentLoading() {
           </div>
 
           <div className="flex gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={`step-${i}`} className="h-10 flex-1 rounded-md" />
-            ))}
+            <Skeleton className="h-10 flex-1 rounded-md" />
+            <Skeleton className="h-10 flex-1 rounded-md" />
+            <Skeleton className="h-10 flex-1 rounded-md" />
           </div>
 
           <Card>

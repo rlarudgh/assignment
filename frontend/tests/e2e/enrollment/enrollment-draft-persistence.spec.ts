@@ -18,7 +18,7 @@ test.describe("Enrollment Draft Persistence Tests", () => {
 
     const draft = await page.evaluate(() => sessionStorage.getItem("enrollment_draft"));
     expect(draft).not.toBeNull();
-    const parsed = JSON.parse(draft!);
+    const parsed = JSON.parse(draft as string);
     expect(parsed.courseId).toBe("course-1");
     expect(parsed.type).toBe("personal");
   });
@@ -54,7 +54,7 @@ test.describe("Enrollment Draft Persistence Tests", () => {
 
     const draft = await page.evaluate(() => sessionStorage.getItem("enrollment_draft"));
     expect(draft).not.toBeNull();
-    const parsed = JSON.parse(draft!);
+    const parsed = JSON.parse(draft as string);
     expect(parsed.applicant.name).toBe("박지성");
     expect(parsed.applicant.email).toBe("pjs@example.com");
   });

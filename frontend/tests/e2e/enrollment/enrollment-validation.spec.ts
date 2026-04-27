@@ -91,7 +91,7 @@ test.describe("Enrollment Validation Tests", () => {
     await expect(page.getByText(/올바른 휴전화번호 형식이 아닙니다/)).toBeVisible();
   });
 
-  test("should allow proceeding after fixing validation errors", async ({ page }) => {
+  test("should allow proceeding after fixing validation errors", async () => {
     await enrollmentPage.goto();
     await enrollmentPage.expectStep(1);
 

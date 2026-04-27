@@ -4,7 +4,7 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import Link from "next/link";
 
-export default function Error({
+export default function ErrorPage({
   error,
   reset,
 }: {
