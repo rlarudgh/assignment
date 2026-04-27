@@ -109,7 +109,7 @@ class Enrollment(
     val id: Long?,                    // PK
     val userId: Long,                 // FK → User
     val courseId: Long,               // FK → Course
-    val status: EnrollmentStatus,     // PENDING, CONFIRMED, CANCELLED
+    val status: EnrollmentStatus,     // PENDING, CONFIRMED, CANCELLED, WAITLIST
     val enrolledAt: LocalDateTime,    // 신청일시
     val confirmedAt: LocalDateTime?,  // 확정일시
     val cancelledAt: LocalDateTime?,  // 취소일시
@@ -167,7 +167,8 @@ DRAFT → OPEN → CLOSED
 enum class EnrollmentStatus {
     PENDING,     // 대기 (결제 대기)
     CONFIRMED,   // 확정 (결제 완료)
-    CANCELLED    // 취소
+    CANCELLED,   // 취소
+    WAITLIST     // 대기열 (정원 초과 시 자동 배정)
 }
 ```
 
@@ -176,6 +177,9 @@ enum class EnrollmentStatus {
 PENDING → CONFIRMED → CANCELLED
            ↓
          (7일 이내 취소 가능)
+
+WAITLIST → CONFIRMED (승급 시)
+         → CANCELLED (취소 시)
 ```
 
 ---
@@ -503,5 +507,5 @@ enum class UserRole {
 
 ---
 
-**문서 버전**: 1.0
-**최종 수정**: 2026-04-26
+**문서 버전**: 1.1
+**최종 수정**: 2026-04-27

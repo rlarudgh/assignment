@@ -148,11 +148,13 @@ curl -X POST http://localhost:8080/api/auth/login \
 |----------|------|------|------|
 | category | string | ❌ | 카테고리 필터 (`development`, `design`, `marketing`, `business`) |
 | status | string | ❌ | 상태 필터 (`DRAFT`, `OPEN`, `CLOSED`) |
+| page | int | ❌ | 페이지 번호 (기본값: 0) |
+| size | int | ❌ | 페이지 크기 (기본값: 20) |
 
 **Response**:
 ```json
 {
-  "courses": [
+  "content": [
     {
       "id": 1,
       "title": "React 완벽 가이드",
@@ -166,7 +168,13 @@ curl -X POST http://localhost:8080/api/auth/login \
       "instructor": "김지민",
       "category": "development"
     }
-  ]
+  ],
+  "currentPage": 0,
+  "totalPages": 5,
+  "totalElements": 48,
+  "pageSize": 10,
+  "hasNext": true,
+  "hasPrevious": false
 }
 ```
 
@@ -352,6 +360,12 @@ curl -X POST http://localhost:8080/api/enrollments \
 
 **설명**: 내 수강 신청 목록을 조회합니다.
 
+**Query Parameters**:
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| page | int | ❌ | 페이지 번호 (기본값: 0) |
+| size | int | ❌ | 페이지 크기 (기본값: 20) |
+
 **Response**:
 ```json
 [
@@ -438,7 +452,100 @@ curl -X POST http://localhost:8080/api/enrollments \
 
 ---
 
-### 4.5 강의별 수강 신청 목록
+### 4.5 대기열 조회
+
+**엔드포인트**: `GET /api/enrollments/waitlist/{courseId}`
+
+**설명**: 특정 강의의 대기열을 조회합니다. (강사만 가능)
+
+**Path Parameters**:
+| 파라미터 | 타입 | 설명 |
+|----------|------|------|
+| courseId | long | 강의 ID |
+
+**Response**:
+```json
+[
+  {
+    "id": 5,
+    "userId": 3,
+    "userName": "박지민",
+    "courseId": 1,
+    "courseTitle": "React 완벽 가이드",
+    "status": "WAITLIST",
+    "enrolledAt": "2026-04-26T10:30:00"
+  }
+]
+```
+
+**Status Codes**:
+- `200 OK`: 조회 성공
+- `401 Unauthorized`: 인증되지 않음
+- `403 Forbidden`: 본인의 강의가 아님
+- `404 Not Found`: 강의를 찾을 수 없음
+
+---
+
+### 4.6 대기열 수동 승급
+
+**엔드포인트**: `PATCH /api/enrollments/waitlist/{id}/promote`
+
+**설명**: 대기열의 수강 신청을 수동으로 확정 상태로 승급합니다. (강사만 가능)
+
+**Path Parameters**:
+| 파라미터 | 타입 | 설명 |
+|----------|------|------|
+| id | long | 수강 신청 ID |
+
+**Response**:
+```json
+{
+  "id": 5,
+  "courseId": 1,
+  "courseTitle": "React 완벽 가이드",
+  "status": "CONFIRMED",
+  "enrolledAt": "2026-04-26T10:30:00",
+  "confirmedAt": "2026-04-26T11:00:00"
+}
+```
+
+**Status Codes**:
+- `200 OK`: 승급 성공
+- `400 Bad Request`: WAITLIST 상태가 아님
+- `401 Unauthorized`: 인증되지 않음
+- `403 Forbidden`: 본인의 강의가 아님
+- `404 Not Found`: 신청을 찾을 수 없음
+
+---
+
+### 4.7 대기열 자동 승급
+
+**엔드포인트**: `POST /api/enrollments/waitlist/{courseId}/auto-promote`
+
+**설명**: 정원에 빈자리가 생긴 경우 대기열에서 순서대로 자동 승급합니다. (강사만 가능)
+
+**Path Parameters**:
+| 파라미터 | 타입 | 설명 |
+|----------|------|------|
+| courseId | long | 강의 ID |
+
+**Response**:
+```json
+{
+  "promotedCount": 2,
+  "message": "2명이 대기열에서 승급되었습니다"
+}
+```
+
+**Status Codes**:
+- `200 OK`: 자동 승급 완료
+- `401 Unauthorized`: 인증되지 않음
+- `403 Forbidden`: 본인의 강의가 아님
+- `404 Not Found`: 강의를 찾을 수 없음
+
+---
+
+### 4.8 강의별 수강 신청 목록
 
 **엔드포인트**: `GET /api/courses/{courseId}/enrollments`
 
@@ -565,5 +672,5 @@ SELECT * FROM courses WHERE id = 1 FOR UPDATE;
 
 ---
 
-**문서 버전**: 1.0
-**최종 수정**: 2026-04-26
+**문서 버전**: 1.1
+**최종 수정**: 2026-04-27

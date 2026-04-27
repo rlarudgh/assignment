@@ -63,7 +63,64 @@ bun run format
 bun run build
 ```
 
-### 5. Mock 서버 (MSW) 사용법
+### 5. 테스트
+
+#### 단위 테스트 (Vitest)
+
+```bash
+bun test                # 전체 단위 테스트 실행
+bun run test:coverage   # 커버리지 포함 실행
+```
+
+#### E2E 테스트 (Playwright)
+
+MSW Mock 서버를 통해 브라우저에서 실제 사용자 흐름을 테스트합니다.
+
+```bash
+# 최초 1회: 브라우저 바이너리 설치
+bunx playwright install
+
+# 전체 E2E 테스트 실행 (headless)
+bun run test:e2e
+
+# 브라우저 창을 열어서 시각적으로 확인
+bun run test:e2e:headed
+
+# 특정 시나리오만 실행
+bun run test:e2e -- --grep "happy path"
+bun run test:e2e -- --grep "validation"
+```
+
+**테스트 시나리오 (20개)**
+
+| 파일 | 시나리오 | 개수 |
+|------|---------|------|
+| `enrollment-personal.spec.ts` | 개인 신청 happy path | 1 |
+| `enrollment-group.spec.ts` | 단체 신청 happy path | 1 |
+| `enrollment-navigation.spec.ts` | 단계 간 이동, 데이터 유지 | 3 |
+| `enrollment-validation.spec.ts` | 필수 필드, 이메일/전화 형식 검증 | 4 |
+| `enrollment-capacity.spec.ts` | 정원 마감/임박 상태 표시 | 2 |
+| `enrollment-error-recovery.spec.ts` | 서버 에러 시 데이터 유지 및 재시도 | 1 |
+| `enrollment-draft-persistence.spec.ts` | 새로고침 후 임시저장 복구 | 3 |
+
+**디렉토리 구조**
+
+```
+tests/e2e/
+├── helpers/
+│   ├── auth.ts                # 로그인 헬퍼
+│   └── enrollment-page.ts     # Page Object Model
+└── enrollment/
+    ├── enrollment-personal.spec.ts
+    ├── enrollment-group.spec.ts
+    ├── enrollment-navigation.spec.ts
+    ├── enrollment-validation.spec.ts
+    ├── enrollment-capacity.spec.ts
+    ├── enrollment-error-recovery.spec.ts
+    └── enrollment-draft-persistence.spec.ts
+```
+
+### 6. Mock 서버 (MSW) 사용법
 
 백엔드 서버 없이도 프론트엔드 개발이 가능하도록 **MSW (Mock Service Worker)**가 구성되어 있습니다.
 

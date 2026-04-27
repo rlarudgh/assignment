@@ -181,7 +181,6 @@ com.example.assignment/
 │   ├── SecurityConfig.kt           # Spring Security + JWT 필터
 │   ├── JwtTokenProvider.kt         # JWT 발급/검증
 │   ├── JwtAuthenticationFilter.kt  # Bearer 토큰 처리
-│   ├── DataInitializer.kt          # 시드 데이터 (dev 프로필)
 │   ├── SwaggerConfig.kt            # OpenAPI 설정
 │   └── WebConfig.kt                # CORS 설정
 ├── controller/
@@ -259,7 +258,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 
 **강의 목록 조회 예시**:
 ```bash
-curl -X GET "http://localhost:8080/api/courses?status=OPEN&category=development"
+curl -X GET "http://localhost:8080/api/courses?status=OPEN&category=development&page=0&size=10"
 ```
 
 ---
@@ -272,6 +271,9 @@ curl -X GET "http://localhost:8080/api/courses?status=OPEN&category=development"
 | `/api/enrollments` | POST | 수강 신청 | ✅ |
 | `/api/enrollments/{id}/confirm` | PATCH | 결제 확정 | ✅ (본인만) |
 | `/api/enrollments/{id}/cancel` | PATCH | 수강 취소 | ✅ (본인만) |
+| `/api/enrollments/waitlist/{courseId}` | GET | 대기열 조회 | ✅ (본인 강의만) |
+| `/api/enrollments/waitlist/{id}/promote` | PATCH | 대기열 수강 확정 | ✅ (강사만) |
+| `/api/enrollments/waitlist/{courseId}/auto-promote` | POST | 대기열 자동 승급 | ✅ (강사만) |
 
 **수강 신청 예시**:
 ```bash
@@ -603,6 +605,4 @@ open build/reports/jacoco/test/html/index.html
 
 - **마이그레이션 없음:** `ddl-auto: update` 사용. 운영 배포 시 Flyway 등 도입 필요
 - **운영 프로필 없음:** `application-prod.yml` 미구현
-- **페이지네이션 없음:** 강의/수강 목록이 전체 조회
-- **대기열 없음:** 정원 초과 시 바로 거부 (waitlist 미구현)
 - **관리자 기능 없음:** 관리자 전용 강의/수강 관리 API 미구현

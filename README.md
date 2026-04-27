@@ -12,7 +12,7 @@ Docker Compose를 통해 MySQL 개발 환경을 구성하고, GitHub Actions로 
 |------|------|
 | **Frontend** | React 19, TypeScript, Next.js 16 (App Router), Bun, TailwindCSS v4, TanStack Query, Zustand, Axios |
 | **Backend** | Spring Boot 3.4, Kotlin 2.1, JPA (Hibernate), MySQL 8.0, Spring Security, Springdoc OpenAPI |
-| **아키텍처** | FSD (Feature-Sliced Design) — Frontend |
+| **아키텍처** | FSD (Feature-Sliced Design) — Frontend, Layered Architecture — Backend |
 | **인프라** | Docker Compose (MySQL), GitHub Actions (CI) |
 | **품질 도구** | Biome, ktlint, Gradle Test |
 
@@ -79,13 +79,6 @@ cp .env.example .env
 | **Backend Sequence Diagrams** | 시퀀스 다이어그램 (인증, 수강신청, 동시성제어) | [backend/docs/SEQUENCE_DIAGRAMS.md](backend/docs/SEQUENCE_DIAGRAMS.md) |
 | **Backend Infrastructure** | 인프라 구조, 배포 전략, 모니터링, CI/CD | [backend/docs/INFRASTRUCTURE.md](backend/docs/INFRASTRUCTURE.md) |
 
-## 요구사항 해석 및 가정
-
-1. **풀스택 과제**: 프론트엔드와 백엔드가 분리된 구조이며, REST API로 통신합니다.
-2. **인증 필요**: Spring Security와 JWT를 기반으로 한 인증/인가를 구현했습니다.
-3. **데이터베이스**: 관계형 데이터베이스(MySQL)를 사용하며, JPA를 통해 도메인 모델을 관리합니다.
-4. **API 문서화**: Swagger/OpenAPI를 활용하여 API 명세를 시각적으로 확인할 수 있습니다.
-5. **프론트엔드 라우팅**: Next.js App Router를 사용하며, `/api/*` 요청은 백엔드로 리버스 프록시됩니다.
 
 ## 설계 결정과 이유
 
@@ -96,7 +89,8 @@ cp .env.example .env
 
 ### 2. Spring Boot + Kotlin — Backend
 
-- **이유**: Null Safety와 간결한 문법으로 생산성을 높이고, Spring 생태계의 검증된 인프라(Security, JPA, Validation)를 활용하기 위함입니다.
+- **Kotlin 선택 이유**: Java 대비 간결한 문법(data class, expression body, 확장 함수)으로 보일러플레이트를 크게 줄이면서도, Null Safety를 언어 차원에서 보장하여 런타임 NPE 위험을 컴파일 타임에 차단합니다. Java와 100% 상호운용되므로 Spring 생태계의 모든 라이브러리(JPA, Security, Validation 등)를 그대로 사용할 수 있으면서도 더 안전하고 읽기 쉬운 코드를 작성할 수 있습니다.
+- **Spring Boot 선택 이유**: 검증된 인프라(Security, JPA, Validation)와 방대한 생태계를 활용하여 비즈니스 로직에 집중하기 위함입니다.
 
 ### 3. TanStack Query + Zustand — 상태 관리
 
@@ -104,7 +98,7 @@ cp .env.example .env
 
 ### 4. Biome — 코드 품질
 
-- **이유**: Rust 기반으로 ESLint + Prettier보다 10~100배 빠륩며, 하나의 설정 파일로 린트와 포맷을 모두 처리하여 개발 경험을 단순화합니다.
+- **이유**: Rust 기반으로 ESLint + Prettier보다 10~100배 빠르고, 하나의 설정 파일로 린트와 포맷을 모두 처리하여 개발 경험을 단순화합니다. (기존: Prettier + Eslint, 현재: Biome)
 
 ### 5. Swagger UI (Springdoc) — API 문서
 
@@ -122,30 +116,31 @@ cp .env.example .env
 
 - **sessionStorage 임시 저장**: 수강 신청 폼에서 브라우저 탭을 닫으면 자동으로 데이터가 삭제되는 임시 저장 기능을 구현했습니다.
 - **비관적 락(Pessimistic Lock)**: 수강 신청 시 정원 초과를 방지하기 위해 `@Lock(LockModeType.PESSIMISTIC_WRITE)`를 적용했습니다.
+- **대기열(Waitlist)**: 정원 초과 시 자동으로 대기열에 배정되며, 취소 발생 시 순차 승급됩니다. 강사가 수동/자동 승급할 수 있습니다.
+- **페이지네이션**: 강의 목록 및 수강 신청 목록에 페이지네이션이 적용되어 있습니다.
 - **MSW(Mock Service Worker)**: 프론트엔드 개발 시 백엔드 없이 테스트 가능한 Mock 서버를 구현했습니다.
 
 ## 제약사항
 
-- **대기열(Waitlist) 기능**: 정원 초과 시 대기열 기능은 구현되지 않았습니다.
 - **Rate Limiting**: API 요청 속도 제한 기능은 구현되지 않았습니다.
-- **운환경 설정**: `application-prod.yml` 및 배포 스크립트는 존재하지 않습니다. 현재는 `dev` 프로파일만 제공됩니다.
+- **운영환경 설정**: `application-prod.yml` 및 배포 스크립트는 존재하지 않습니다. 현재는 `dev` 프로파일만 제공됩니다.
 
 ## AI 활용 범위
 
-AI는 **보조적인 역할**로만 활용했습니다. 모든 핵심 코드와 비즈니스 로직은 직접 작성했습니다.
+AI는 참고 목적과 반복적인 기능 구현에 활용했습니다. 모든 핵심 코드와 비즈니스 로직은 직접 작성했습니다.
 
-### AI 활용 영역 (보조 역할)
+### AI 활용 영역
 
 - **문서 초안 작성**: 기본 틀 작성 → 내용 검토 및 수정
 - **코드 리팩토링 제안**: 리팩토링 아이디어 제시 → 직접 판단 후 적용
 - **보안 검토 제안**: 취약점 식별 → 수정 방향 결정 후 직접 수정
 
-### 직접 구현 (사용자 작성)
+### 직접 구현
 
 - **핵심 비즈니스 로직**: 수강 신청, 다단계 폼, 정원 관리
 - **아키텍처 설계**: FSD 적용, 상태 관리, API 통신
 - **데이터 유효성 검증**: Zod 스키마, 폼 검증 로직
-- **UI/UX 구현**: 반응형 레이아웃, 이탈 방지, 에러 처리
+- **UI/UX 구현**: 이탈 방지, 에러 처리
 - **보안 조치**: JWT 인증, 권한 제어, 동시성 제어
 
 ### 원칙
